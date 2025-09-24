@@ -22,12 +22,16 @@ function getCategoryDiscount(category){
     switch (category){
         case "gear":
             return 0.10;
+            break;
         case "apparel":
             return 0.15;
+            break;
         case "snacks":
             return 0.08;
+            break;
         case "access":
             return 0.05;
+            break;
     default:
          return 0;
            }
@@ -45,3 +49,45 @@ function findProductbyId(id){
     const product = products.find (p=> p.id === id);
     return product || null; 
 }
+
+function lineItemTotal(cartItem){
+    const product = findProductbyId (cartItem.productId);
+
+    if (!product || cartItem.qty <= 0 ){
+        return 0;
+    }
+
+    const discountedUnitPrice = priceAfterCategoryDiscount(product);
+    return cartItem.qty * discountedUnitPrice; 
+}
+
+function orderSubtotal (cart){
+    return cart.reduce((sum,cartItem) => {
+        return sum + lineItemTotal(cartItem);
+    },0); 
+}
+
+function customerAdjustmentRate(customerType){
+    switch (customerType){
+        case "student":
+            return 0.03;
+        case "member":
+            return 0.05;
+        case "vip":
+            return 0.10;
+        default:
+            return 0 ;
+    }
+}
+
+function orderTotal(cart, customerType){
+    const sub = orderSubtotal(cart);
+    const adj= customerAdjustmentRate(customerType);
+    const final= sub * (1-adj);
+    return final;
+}
+
+function formatCurrency(amount){
+    return "$" + amount.toFixed(2)
+}
+
